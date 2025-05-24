@@ -1,72 +1,97 @@
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "DEIN_API_KEY",
-    authDomain: "DEIN_AUTH_DOMAIN",
-    projectId: "DEIN_PROJECT_ID",
-    storageBucket: "DEIN_BUCKET",
-    messagingSenderId: "DEIN_SENDER_ID",
-    appId: "DEINE_APP_ID"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-
-  function speichern() {
-    const text = document.getElementById("text").value;
-    if (text.trim() !== "") {
-      db.collection("posts").add({
-        text: text,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      document.getElementById("text").value = "";
-    }
-  }
-
-  function laden() {
-    db.collection("posts").orderBy("timestamp", "desc").get().then(snapshot => {
-      const ausgabe = document.getElementById("ausgabe");
-      ausgabe.innerHTML = "";
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const div = document.createElement("div");
-        div.textContent = data.text;
-        ausgabe.appendChild(div);
-      });
-    });
-  }
-
-  window.onload = laden;
-</script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AstroMonkey</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AstroMonker</title>
+
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #0b0c10;
+      color: #ffffff;
+      padding: 2rem;
+    }
+    h1 {
+      color: #66fcf1;
+    }
+    textarea {
+      width: 100%;
+      max-width: 500px;
+      height: 100px;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      background-color: #45a29e;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .post {
+      background: #1f2833;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-left: 4px solid #66fcf1;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>AstroMonkey</h1>
-    <p>Teile deine astronomischen Ideen mit der Erde</p>
-  </header>
+  <h1>AstroMonker</h1>
+  <p>Schreibe deine astronomische Idee:</p>
 
-  <main>
-    <section>
-      <h2>Neue Idee posten</h2>
-      <input type="text" id="name" placeholder="Dein Name oder Nickname (optional)" />
-      <textarea id="postText" placeholder="Deine Idee..."></textarea>
-      <button onclick="submitPost()">Veröffentlichen</button>
-    </section>
+  <textarea id="text" placeholder="Deine Idee..."></textarea><br>
+  <button onclick="speichern()">Posten</button>
 
-    <section>
-      <button onclick="togglePosts()">Alle Ideen anzeigen</button>
-      <div id="post-list" style="display: none;"></div>
-    </section>
-  </main>
+  <h2>Alle Ideen:</h2>
+  <div id="ausgabe"></div>
 
-  <script src="main.js"></script>
+  <script>
+    // >>> Trage hier deine echten Firebase-Daten ein:
+    const firebaseConfig = {
+      apiKey: "DEIN_API_KEY",
+      authDomain: "DEIN_AUTH_DOMAIN",
+      projectId: "DEIN_PROJECT_ID",
+      storageBucket: "DEIN_BUCKET",
+      messagingSenderId: "DEIN_SENDER_ID",
+      appId: "DEINE_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function speichern() {
+      const text = document.getElementById("text").value;
+      if (text.trim() !== "") {
+        db.collection("posts").add({
+          text: text,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        document.getElementById("text").value = "";
+        laden(); // neu laden nach dem Post
+      }
+    }
+
+    function laden() {
+      db.collection("posts").orderBy("timestamp", "desc").get().then(snapshot => {
+        const ausgabe = document.getElementById("ausgabe");
+        ausgabe.innerHTML = "";
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const div = document.createElement("div");
+          div.className = "post";
+          div.textContent = data.text;
+          ausgabe.appendChild(div);
+        });
+      });
+    }
+
+    window.onload = laden;
+  </script>
 </body>
 </html>
