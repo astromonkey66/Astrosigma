@@ -1,7 +1,5 @@
-// Firebase-Konfiguration – ersetze durch deine echten Daten!
-<textarea id="text" placeholder="Deine Idee..."></textarea>
-<button onclick="speichern()">Posten</button>
-<div id="ausgabe"></div>const firebaseConfig = {
+// >>> Trage hier deine echten Firebase-Daten ein:
+const firebaseConfig = {
   apiKey: "DEIN_API_KEY",
   authDomain: "DEIN_AUTH_DOMAIN",
   projectId: "DEIN_PROJECT_ID",
@@ -13,39 +11,30 @@
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-function submitPost() {
-  const name = document.getElementById("name").value || "Unbekannt";
-  const text = document.getElementById("postText").value.trim();
-  if (text !== "") {
+function speichern() {
+  const text = document.getElementById("text").value;
+  if (text.trim() !== "") {
     db.collection("posts").add({
-      name: name,
       text: text,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
-    document.getElementById("postText").value = "";
-    document.getElementById("name").value = "";
-    alert("Deine Idee wurde gespeichert!");
+    document.getElementById("text").value = "";
+    laden();
   }
 }
 
-
-function togglePosts() {
-  const list = document.getElementById("post-list");
-  if (!postsVisible) {
-    db.collection("posts").orderBy("timestamp", "desc").get().then(snapshot => {
-      list.innerHTML = "";
-      snapshot.forEach(doc => {
-        const post = doc.data();
-        const div = document.createElement("div");
-        div.className = "post";
-        div.innerHTML = `<strong>${post.name}</strong><p>${post.text}</p>`;
-        list.appendChild(div);
-      });
-      list.style.display = "block";
-      postsVisible = true;
+function laden() {
+  db.collection("posts").orderBy("timestamp", "desc").get().then(snapshot => {
+    const ausgabe = document.getElementById("ausgabe");
+    ausgabe.innerHTML = "";
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const div = document.createElement("div");
+      div.className = "post";
+      div.textContent = data.text;
+      ausgabe.appendChild(div);
     });
-  } else {
-    list.style.display = "none";
-    postsVisible = false;
-  }
+  });
 }
+
+window.onload = laden;
