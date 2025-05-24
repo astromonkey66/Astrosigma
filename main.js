@@ -26,7 +26,6 @@ function submitPost() {
   }
 }
 
-let postsVisible = false;
 
 function togglePosts() {
   const list = document.getElementById("post-list");
